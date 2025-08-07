@@ -1,0 +1,10 @@
+# Python specific
+__pycache__/
+*.pyc
+
+# IDE / Editor specific
+.vscode/
+.idea/
+
+# Dependency folders
+venv/

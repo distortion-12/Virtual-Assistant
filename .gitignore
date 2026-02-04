@@ -65,3 +65,4 @@ tmp/
 # Documentation (exclude all .md except README.md)
 *.md
 !README.md
+!USER_GUIDE.md

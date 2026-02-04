@@ -53,8 +53,8 @@ python executor.py
 ### First GUI Session
 
 ```bash
-python run_jarvis_ui.py
-# Click "Manual Listen" or "Text Input"
+python jarvis_ui.py
+# Click "LISTEN" or "TEXT INPUT"
 # Interact with the interface
 ```
 
@@ -111,15 +111,12 @@ python run_jarvis_ui.py
 
 ## 📚 Documentation
 
-This project includes comprehensive documentation:
+This project includes core documentation:
 
 | Document | Purpose | Audience |
 |----------|---------|----------|
-| [README.md](README.md) | This file - Quick start | Everyone |
-| [QUICKSTART.md](QUICKSTART.md) | Extended quick start | New users |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System design & internals | Developers |
-| [MODULAR_ARCHITECTURE.md](MODULAR_ARCHITECTURE.md) | Skill creation guide | Developers |
-| [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md) | Visual system design | Visual learners |
+| [README.md](README.md) | Quick start and overview | Everyone |
+| [USER_GUIDE.md](USER_GUIDE.md) | Full usage guide | Users & developers |
 
 ## 🏗️ Architecture
 
@@ -165,14 +162,14 @@ This project includes comprehensive documentation:
 ```
 jarvis/
 ├── README.md                    # Main documentation (this file)
-├── QUICKSTART.md               # Extended quick start guide
+├── USER_GUIDE.md               # Full usage guide
 ├── requirements.txt             # Python dependencies
-├── jarvis_config.json          # Configuration file
+├── jarvis_config.json          # Local configuration (ignored)
+├── jarvis_config.example.json  # Safe example config
 │
 ├── executor.py                  # ⭐ Main entry point
 ├── jarvis.py                    # Core library (I/O, utilities)
 ├── jarvis_ui.py                 # GUI interface (Tkinter)
-├── run_jarvis_ui.py             # GUI launcher
 │
 ├── skills/                      # 🛠️ Modular Skills (7 skills)
 │   ├── __init__.py
@@ -191,9 +188,10 @@ jarvis/
 │   ├── task_executor.py         # Task execution
 │   └── task_planner.py          # Request parsing
 │
-└── agents/                      # 🧠 Agent System
-    ├── __init__.py
-    └── jarvis_agent.py          # Main agent orchestrator
+├── agents/                      # 🧠 Agent System
+│   ├── __init__.py
+│   └── jarvis_agent.py          # Main agent orchestrator
+└── client/                      # 🌐 Optional web UI (React + Vite)
 ```
 
 ## 🎓 Learning Paths
@@ -209,7 +207,7 @@ jarvis/
 2. Study `executor.py` code
 3. Explore one skill file (`skills/time_date.py`)
 4. Try voice mode: `python executor.py` (mode 1)
-5. Try GUI: `python run_jarvis_ui.py`
+5. Try GUI: `python jarvis_ui.py`
 
 ### Advanced (2 hours)
 1. Read [MODULAR_ARCHITECTURE.md](MODULAR_ARCHITECTURE.md)
@@ -262,7 +260,13 @@ For complete guide, see [MODULAR_ARCHITECTURE.md](MODULAR_ARCHITECTURE.md)
 
 ## ⚙️ Configuration
 
-Edit `jarvis_config.json`:
+Copy the example config and edit your local file:
+
+```bash
+copy jarvis_config.example.json jarvis_config.json
+```
+
+Then edit `jarvis_config.json`:
 
 ```json
 {
@@ -297,6 +301,8 @@ Edit `jarvis_config.json`:
 | hf_model | string | "facebook/bart-large-mnli" | Hosted intent model |
 | hf_min_score | float | 0.55 | Minimum intent confidence |
 | picovoice_access_key | string | "" | Porcupine wake word access key |
+| google_api_key | string | "" | Google Generative Language API key |
+| hf_code_model | string | "gpt2" | Hosted code model |
 
 ## 📦 Dependencies
 
@@ -343,14 +349,13 @@ python executor.py
 
 ### Mode 3: GUI Mode (Visual Interface)
 ```bash
-python run_jarvis_ui.py
+python jarvis_ui.py
 ```
 
 **Features:**
-- Dark theme with cyan accents
+- Sci‑fi HUD theme with animated core panel
 - Wake word detection
-- Manual listen button
-- Text input dialog
+- Manual listen and text input
 - Activity log with timestamps
 - Real-time status updates
 

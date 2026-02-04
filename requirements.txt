@@ -1,0 +1,25 @@
+# JARVIS Assistant Requirements
+
+# Text-to-Speech
+pyttsx3==2.90
+
+# Speech Recognition
+SpeechRecognition==3.10.0
+pyaudio==0.2.14
+
+# System Information
+psutil==5.9.5
+
+# HTTP Requests for API calls
+requests==2.31.0
+
+# Screenshot capability (optional)
+pyautogui==0.9.54
+Pillow==10.3.0
+
+# GUI Interface
+# tkinter is built-in with Python on Windows/macOS
+# On Linux, install with: sudo apt-get install python3-tk
+
+# Wake Word Detection (optional, requires API key)
+pvporcupine==2.2.1

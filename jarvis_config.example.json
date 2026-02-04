@@ -1,0 +1,22 @@
+{
+    "wake_word": "jarvis",
+    "voice_rate": 150,
+    "voice_volume": 0.9,
+    "weather_api_key": "",
+    "user_name": "Sir",
+    "theme": "default",
+    "ai_intent_enabled": true,
+    "use_agent_in_gui": true,
+    "speak_task_details": false,
+    "hf_api_token": "",
+    "hf_model": "facebook/bart-large-mnli",
+    "hf_min_score": 0.55,
+    "hf_code_model": "gpt2",
+    "hf_code_max_tokens": 1200,
+    "hf_code_temperature": 0.2,
+    "google_api_key": "",
+    "google_model": "gemini-2.5-flash",
+    "google_max_tokens": 2000,
+    "whatsapp_debug": true,
+    "picovoice_access_key": ""
+}

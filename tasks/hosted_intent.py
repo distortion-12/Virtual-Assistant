@@ -39,7 +39,7 @@ class HostedIntentRouter:
         self.api_url = f"https://api-inference.huggingface.co/models/{model}"
         self.headers = {
             "Authorization": f"Bearer {api_token}",
-            "User-Agent": "Jarvis/1.0 (https://example.com; contact: local)",
+            "User-Agent": "Zenith/1.0 (https://example.com; contact: local)",
         }
 
     @classmethod

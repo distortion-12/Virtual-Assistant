@@ -1,6 +1,6 @@
 """
 Tasks Module
-Task management system for Jarvis
+Task management system for Zenith
 """
 
 from .task_manager import Task, TaskStatus, TaskQueue

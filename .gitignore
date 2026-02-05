@@ -55,6 +55,7 @@ run_jarvis_ui.py
 
 # Secrets / local config
 jarvis_config.json
+zenith_config.json
 .env
 .env.*
 
@@ -64,6 +65,11 @@ screenshot_*.png
 # Temporary files
 tmp/
 *.tmp
+
+# Client (Vite)
+client/node_modules/
+client/dist/
+client/.vite/
 
 # Documentation (exclude all .md except README.md)
 *.md

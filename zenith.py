@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-JARVIS - Just A Rather Very Intelligent System
+ZENITH - A Personal Intelligent System
 A voice-controlled personal assistant that can fully control your device
 """
 
@@ -50,11 +50,11 @@ except ImportError:
     print("Warning: requests not installed. Weather features will be disabled.")
 
 
-class Jarvis:
-    """Main Jarvis Assistant Class"""
+class Zenith:
+    """Main Zenith Assistant Class"""
     
     def __init__(self):
-        """Initialize Jarvis with necessary components"""
+        """Initialize Zenith with necessary components"""
         if TTS_AVAILABLE:
             try:
                 self.engine = pyttsx3.init()
@@ -86,12 +86,16 @@ class Jarvis:
         
     def load_config(self):
         """Load configuration from config file"""
-        config_path = Path(__file__).parent / "jarvis_config.json"
+        config_path = Path(__file__).parent / "zenith_config.json"
+        fallback_path = Path(__file__).parent / "jarvis_config.json"
         if config_path.exists():
             with open(config_path, 'r') as f:
                 return json.load(f)
+        if fallback_path.exists():
+            with open(fallback_path, 'r') as f:
+                return json.load(f)
         return {
-            "wake_word": "jarvis",
+            "wake_word": "zenith",
             "voice_rate": 150,
             "voice_volume": 0.9,
             "weather_api_key": ""
@@ -119,22 +123,29 @@ class Jarvis:
             if not self.config.get("speak_task_details", True):
                 question_words = ["who", "what", "why", "how", "when", "where"]
                 request = (self.last_request or "").lower()
+                small_talk_phrases = [
+                    "hi", "hello", "hey", "good morning", "good afternoon", "good evening",
+                    "good night", "thanks", "thank you", "ok", "okay", "bye", "goodbye",
+                    "nice to meet you", "pleased to meet you", "how are you", "what's up",
+                    "whats up", "sup"
+                ]
+                is_small_talk = any(phrase in request for phrase in small_talk_phrases)
                 negative_feedback = any(phrase in request for phrase in [
                     "not sent", "wasn't sent", "was not sent", "didn't send", "failed", "not done"
                 ])
                 is_question = any(word in request for word in question_words)
                 if negative_feedback:
                     speak_text = "Okay"
-                elif not is_question:
+                elif not is_question and not is_small_talk:
                     task_name = self.last_task_command or "Task"
                     if task_name.lower().startswith("send"):
                         speak_text = "Message send attempted"
                     else:
-                        speak_text = f"{task_name} completed"
+                        speak_text = f"Done {task_name}"
         except Exception:
             speak_text = text
 
-        print(f"Jarvis: {speak_text}")
+        print(f"Zenith: {speak_text}")
         if self.engine:
             try:
                 self.engine.say(speak_text)
@@ -655,7 +666,7 @@ class Jarvis:
 
         query = _normalize_query(query)
         headers = {
-            "User-Agent": "Jarvis/1.0 (https://example.com; contact: local)"
+            "User-Agent": "Zenith/1.0 (https://example.com; contact: local)"
         }
         if not REQUESTS_AVAILABLE:
             response = (

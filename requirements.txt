@@ -1,4 +1,4 @@
-# JARVIS Assistant Requirements
+# ZENITH Assistant Requirements
 
 # Text-to-Speech
 pyttsx3==2.90
@@ -22,4 +22,4 @@ Pillow==10.3.0
 # On Linux, install with: sudo apt-get install python3-tk
 
 # Wake Word Detection (optional, requires API key)
-pvporcupine==2.2.1
+pvporcupine>=3.0.0

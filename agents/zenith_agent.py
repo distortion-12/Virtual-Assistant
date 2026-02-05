@@ -1,5 +1,5 @@
 """
-JARVIS Agent
+ZENITH Agent
 Agentic system for handling complex requests
 """
 
@@ -18,7 +18,7 @@ class AgentState(Enum):
     ERROR = "error"
 
 
-class JarvisAgent:
+class ZenithAgent:
     """Intelligent agent for handling complex requests"""
     
     def __init__(self, jarvis_instance, task_executor, task_planner):
@@ -86,7 +86,7 @@ class JarvisAgent:
             try:
                 self._log_action(f"Executing task: {task.command}")
                 result = self.executor.execute_task(task)
-                results.append(result or "Task completed")
+                results.append(result or "")
                 self._log_action(f"Task completed: {task.id}")
             except Exception as e:
                 error = str(e)
@@ -103,18 +103,24 @@ class JarvisAgent:
         def _summarize(task, result):
             request = (self.current_request or "").lower()
             question_words = ["who", "what", "why", "how", "when", "where"]
+            query_phrases = [
+                "tell me", "explain", "define", "information about", "details about",
+                "what is", "who is", "how to", "how do", "why is", "why do",
+            ]
             is_question = any(word in request for word in question_words)
+            is_query = any(phrase in request for phrase in query_phrases)
+            normalized_result = (result or "").strip().lower()
+            if normalized_result and any(word in normalized_result for word in ["error", "failed", "could not", "not installed", "not available"]):
+                return result
             if any(phrase in request for phrase in [
                 "not ", "not sent", "wasn't sent", "was not sent", "didn't send", "failed", "not done"
             ]):
                 return "Okay"
-            if is_question:
-                return result or "Task completed"
-            if result and any(word in result.lower() for word in ["could not", "error", "failed"]):
-                return f"{task.command} failed"
-            if result and "attempted" in result.lower():
-                return f"{task.command} attempted"
-            return f"{task.command} completed"
+            if is_question or is_query:
+                return result or "I'm not sure, but I can look it up if you want."
+            if normalized_result and "attempted" in normalized_result:
+                return result
+            return f"Done {task.command}"
         
         if len(results) == 1:
             return _summarize(tasks[0], results[0])

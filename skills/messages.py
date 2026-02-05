@@ -215,7 +215,7 @@ class MessageSkill(BaseSkill):
 
         phone_no = self._resolve_contact(contact)
         if not phone_no:
-            response = "Contact not found. Add it to whatsapp_contacts in jarvis_config.json or say a phone number."
+            response = "Contact not found. Add it to whatsapp_contacts in zenith_config.json or say a phone number."
             self.speak(response)
             return response
 
@@ -370,19 +370,25 @@ class MessageSkill(BaseSkill):
 
     def _load_config(self) -> dict:
         try:
-            config_path = Path(__file__).parent.parent / "jarvis_config.json"
+            config_path = Path(__file__).parent.parent / "zenith_config.json"
+            fallback_path = Path(__file__).parent.parent / "jarvis_config.json"
             if config_path.exists():
                 return json.loads(config_path.read_text())
+            if fallback_path.exists():
+                return json.loads(fallback_path.read_text())
         except Exception:
             pass
         return {}
 
     def _update_config(self, updates: dict) -> None:
         try:
-            config_path = Path(__file__).parent.parent / "jarvis_config.json"
+            config_path = Path(__file__).parent.parent / "zenith_config.json"
+            fallback_path = Path(__file__).parent.parent / "jarvis_config.json"
             data = {}
             if config_path.exists():
                 data = json.loads(config_path.read_text())
+            elif fallback_path.exists():
+                data = json.loads(fallback_path.read_text())
             data.update(updates)
             config_path.write_text(json.dumps(data, indent=4))
         except Exception:

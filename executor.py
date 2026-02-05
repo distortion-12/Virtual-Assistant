@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-JARVIS Agent Executor
-Main entry point for running JARVIS with skills, tasks, and agents
+ZENITH Agent Executor
+Main entry point for running ZENITH with skills, tasks, and agents
 """
 
 import sys
@@ -10,7 +10,7 @@ from pathlib import Path
 # Add current directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from jarvis import Jarvis
+from zenith import Zenith
 from skills import (
     TimeAndDateSkill,
     ApplicationSkill,
@@ -23,21 +23,21 @@ from skills import (
     MessageSkill,
 )
 from tasks import TaskExecutor, TaskPlanner, Task
-from agents import JarvisAgent
+from agents import ZenithAgent
 
 
-class JarvisExecutor:
-    """Main executor for JARVIS system"""
+class ZenithExecutor:
+    """Main executor for ZENITH system"""
     
     def __init__(self):
         """Initialize the executor"""
         print("=" * 60)
-        print("🤖 JARVIS - Agent-Based Executor")
+        print("🤖 ZENITH - Agent-Based Executor")
         print("=" * 60)
         
-        # Initialize JARVIS core
-        self.jarvis = Jarvis()
-        print("✓ JARVIS core initialized")
+        # Initialize ZENITH core
+        self.jarvis = Zenith()
+        print("✓ ZENITH core initialized")
         
         # Initialize task system
         self.task_executor = TaskExecutor(self.jarvis)
@@ -49,11 +49,11 @@ class JarvisExecutor:
         print("✓ Skills registered")
         
         # Initialize agent
-        self.agent = JarvisAgent(self.jarvis, self.task_executor, self.task_planner)
+        self.agent = ZenithAgent(self.jarvis, self.task_executor, self.task_planner)
         print("✓ Agent initialized")
         
         print("\n" + "=" * 60)
-        print("JARVIS is ready!")
+        print("ZENITH is ready!")
         print("=" * 60 + "\n")
     
     def _register_skills(self):
@@ -103,7 +103,7 @@ class JarvisExecutor:
                         break
                     
                     response = self.process_voice_command(command)
-                    print(f"📢 JARVIS: {response}\n")
+                    print(f"📢 ZENITH: {response}\n")
                 
             except KeyboardInterrupt:
                 print("\n\nShutting down...")
@@ -129,7 +129,7 @@ class JarvisExecutor:
                     break
                 
                 response = self.process_text_command(command)
-                print(f"JARVIS: {response}\n")
+                print(f"ZENITH: {response}\n")
                 
             except KeyboardInterrupt:
                 print("\n\nShutting down...")
@@ -140,7 +140,7 @@ class JarvisExecutor:
     def show_menu(self):
         """Show main menu"""
         print("\n" + "=" * 60)
-        print("JARVIS - Main Menu")
+        print("ZENITH - Main Menu")
         print("=" * 60)
         print("1. Voice Mode (requires microphone)")
         print("2. Text Mode")
@@ -153,31 +153,13 @@ class JarvisExecutor:
     
     def run(self):
         """Run the executor"""
-        while True:
-            choice = self.show_menu()
-            
-            if choice == '1':
-                try:
-                    self.run_voice_mode()
-                except Exception as e:
-                    print(f"Error in voice mode: {e}")
-            elif choice == '2':
-                try:
-                    self.run_text_mode()
-                except Exception as e:
-                    print(f"Error in text mode: {e}")
-            elif choice == '3':
-                self._launch_gui()
-            elif choice == '4':
-                print("Goodbye!")
-                break
-            else:
-                print("Invalid choice. Please try again.")
+        self._launch_gui()
+        return
     
     def _launch_gui(self):
         """Launch the GUI"""
         try:
-            from jarvis_ui import main
+            from zenith_ui import main
             print("\nLaunching GUI...\n")
             main()
         except Exception as e:
@@ -188,7 +170,7 @@ class JarvisExecutor:
 def main():
     """Main entry point"""
     try:
-        executor = JarvisExecutor()
+        executor = ZenithExecutor()
         executor.run()
     except KeyboardInterrupt:
         print("\n\nShutdown complete.")

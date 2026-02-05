@@ -1,6 +1,6 @@
-# JARVIS User Guide (Complete)
+# ZENITH User Guide (Complete)
 
-> A complete, end-to-end guide to using JARVIS, including skills, tasks, modes, configuration, troubleshooting, and help.
+> A complete, end-to-end guide to using ZENITH, including skills, tasks, modes, configuration, troubleshooting, and help.
 
 ## 📌 Table of Contents
 
@@ -20,7 +20,7 @@
 
 ## 1) Overview
 
-JARVIS is a modular, agent-based AI assistant. It understands requests, plans tasks, and executes them through specialized skills. It works in three modes: voice, text, and GUI.
+ZENITH is a modular, agent-based AI assistant. It understands requests, plans tasks, and executes them through specialized skills. It works in three modes: voice, text, and GUI.
 
 Key parts:
 - **Agent Orchestrator**: Coordinates everything
@@ -51,7 +51,7 @@ python executor.py
 
 ### Run in GUI Mode
 ```
-python jarvis_ui.py
+python zenith_ui.py
 ```
 
 ---
@@ -139,7 +139,7 @@ Example:
 
 ## 5) Tasks (What Tasks Can Be Performed)
 
-Tasks are the executable units created from your input. JARVIS supports:
+Tasks are the executable units created from your input. ZENITH supports:
 
 ### Single tasks
 - Time lookup
@@ -167,7 +167,7 @@ Examples:
 
 ## 6) How Skills Are Used (Skill Routing)
 
-JARVIS decides which skill should handle a command based on keywords and intent matching.
+ZENITH decides which skill should handle a command based on keywords and intent matching.
 
 Example:
 - "What time is it?" → Time & Date Skill
@@ -218,14 +218,14 @@ If a request has multiple actions, each action is routed to the correct skill an
 Copy the example config and edit your local file:
 
 ```
-copy jarvis_config.example.json jarvis_config.json
+copy zenith_config.example.json zenith_config.json
 ```
 
-Then edit jarvis_config.json to customize behavior:
+Then edit zenith_config.json to customize behavior:
 
 ```json
 {
-  "wake_word": "jarvis",
+  "wake_word": "zenith",
   "voice_rate": 150,
   "voice_volume": 0.9,
   "weather_api_key": "",
@@ -289,8 +289,8 @@ Only for web search, knowledge, and weather.
 - Start: python executor.py
 - Text mode: Select 2
 - Voice mode: Select 1
-- GUI: python jarvis_ui.py
-- Configure: jarvis_config.json
+- GUI: python zenith_ui.py
+- Configure: zenith_config.json
 - Extend: Add a skill in skills/
 
 ---

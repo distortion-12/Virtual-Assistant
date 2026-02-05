@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-JARVIS - GUI Interface with Wake Word Detection and Button Control
+ZENITH - GUI Interface with Wake Word Detection and Button Control
 A voice-controlled personal assistant with a modern UI
 """
 
@@ -12,11 +12,12 @@ from pathlib import Path
 from datetime import datetime
 import os
 import sys
+import time
 
-# Import the JARVIS class
-from jarvis import Jarvis
+# Import the ZENITH class
+from zenith import Zenith
 from tasks import TaskExecutor, TaskPlanner
-from agents import JarvisAgent
+from agents import ZenithAgent
 from skills import (
     TimeAndDateSkill,
     ApplicationSkill,
@@ -39,18 +40,18 @@ except ImportError:
     print("Warning: Porcupine wake word detection not available. Install with: pip install pvporcupine pyaudio")
 
 
-class JarvisUI:
-    """JARVIS GUI Interface"""
+class ZenithUI:
+    """ZENITH GUI Interface"""
     
     def __init__(self, root):
         self.root = root
-        self.root.title("JARVIS - Voice Assistant")
+        self.root.title("ZENITH - Voice Assistant")
         self.root.geometry("900x700")
         self.root.configure(bg="#05070f")
         self.root.minsize(900, 700)
         
-        # Initialize Jarvis
-        self.jarvis = Jarvis()
+        # Initialize Zenith
+        self.jarvis = Zenith()
 
         # Optional agent pipeline for better intent understanding
         self.use_agent = bool(self.jarvis.config.get("use_agent_in_gui", False))
@@ -59,19 +60,24 @@ class JarvisUI:
             self.task_executor = TaskExecutor(self.jarvis)
             self.task_planner = TaskPlanner(config=self.jarvis.config)
             self._register_skills()
-            self.agent = JarvisAgent(self.jarvis, self.task_executor, self.task_planner)
+            self.agent = ZenithAgent(self.jarvis, self.task_executor, self.task_planner)
         
         # Thread control
         self.listening = False
         self.wake_word_active = False
         self.listen_thread = None
         self.wake_word_thread = None
+        self.wake_word_paused = False
+
+        # Input mode control
+        self.input_mode = tk.StringVar(value="voice")
         
         # Wake word configuration
-        self.wake_word = self.jarvis.config.get("wake_word", "jarvis").lower()
+        self.wake_word = self.jarvis.config.get("wake_word", "zenith").lower()
         self.porcupine = None
         self.pa = None
         self.audio_stream = None
+        self.use_porcupine_wake_word = True
         self.porcupine_key = (
             self.jarvis.config.get("picovoice_access_key", "")
             or os.getenv("PICOVOICE_ACCESS_KEY", "")
@@ -79,8 +85,11 @@ class JarvisUI:
         
         # Setup UI
         self.setup_ui()
-        self.add_log("JARVIS initialized successfully!")
+        self.add_log("ZENITH initialized successfully!")
         self.add_log(f"Wake word set to: '{self.wake_word}'")
+
+        # Auto-start voice mode with wake word detection
+        self.root.after(600, self._auto_start_voice_mode)
         
     def setup_ui(self):
         """Setup the UI components"""
@@ -91,7 +100,7 @@ class JarvisUI:
         except Exception:
             pass
         style.configure(
-            "Jarvis.Horizontal.TProgressbar",
+            "Zenith.Horizontal.TProgressbar",
             troughcolor="#0b1120",
             bordercolor="#0b1120",
             background="#4de1ff",
@@ -111,7 +120,7 @@ class JarvisUI:
 
         title_label = tk.Label(
             title_block,
-            text="J A R V I S",
+            text="Z E N I T H",
             font=("Segoe UI", 24, "bold"),
             bg="#08101f",
             fg="#4de1ff"
@@ -237,21 +246,49 @@ class JarvisUI:
         )
         self.listen_btn.pack(side=tk.LEFT, padx=(0, 8))
 
-        self.text_btn = tk.Button(
-            button_frame,
-            text="TEXT INPUT",
-            command=self.get_text_command,
-            bg="#ffb86c",
-            fg="#081018",
-            font=("Segoe UI", 10, "bold"),
-            padx=14,
-            pady=8,
-            relief=tk.FLAT,
-            cursor="hand2",
-            activebackground="#e39a45",
-            activeforeground="#081018"
+        mode_frame = tk.Frame(button_frame, bg="#0b1224")
+        mode_frame.pack(side=tk.LEFT, padx=(0, 8))
+
+        tk.Label(
+            mode_frame,
+            text="INPUT MODE",
+            font=("Segoe UI", 8, "bold"),
+            bg="#0b1224",
+            fg="#9ee7ff"
+        ).pack(anchor=tk.W)
+
+        mode_buttons = tk.Frame(mode_frame, bg="#0b1224")
+        mode_buttons.pack(anchor=tk.W)
+
+        self.voice_mode_btn = tk.Radiobutton(
+            mode_buttons,
+            text="VOICE",
+            variable=self.input_mode,
+            value="voice",
+            command=lambda: self.set_input_mode("voice"),
+            bg="#0b1224",
+            fg="#7aa2f7",
+            selectcolor="#0b1224",
+            activebackground="#0b1224",
+            activeforeground="#7aa2f7",
+            font=("Segoe UI", 8, "bold")
         )
-        self.text_btn.pack(side=tk.LEFT, padx=(0, 8))
+        self.voice_mode_btn.pack(side=tk.LEFT, padx=(0, 6))
+
+        self.text_mode_btn = tk.Radiobutton(
+            mode_buttons,
+            text="TEXT",
+            variable=self.input_mode,
+            value="text",
+            command=lambda: self.set_input_mode("text"),
+            bg="#0b1224",
+            fg="#ffb86c",
+            selectcolor="#0b1224",
+            activebackground="#0b1224",
+            activeforeground="#ffb86c",
+            font=("Segoe UI", 8, "bold")
+        )
+        self.text_mode_btn.pack(side=tk.LEFT)
 
         clear_btn = tk.Button(
             button_frame,
@@ -284,6 +321,48 @@ class JarvisUI:
             activeforeground="#081018"
         )
         exit_btn.pack(side=tk.RIGHT)
+
+        # ===== TEXT INPUT =====
+        self.text_input_frame = tk.Frame(left_panel, bg="#0b1224")
+        self.text_input_frame.pack(fill=tk.X, padx=12, pady=(0, 12))
+
+        tk.Label(
+            self.text_input_frame,
+            text="TEXT INPUT",
+            font=("Segoe UI", 9, "bold"),
+            bg="#0b1224",
+            fg="#ffb86c"
+        ).pack(anchor=tk.W)
+
+        text_row = tk.Frame(self.text_input_frame, bg="#0b1224")
+        text_row.pack(fill=tk.X, pady=(6, 0))
+
+        self.text_entry = tk.Entry(
+            text_row,
+            font=("Segoe UI", 10),
+            bg="#0b1126",
+            fg="#7CFFB2",
+            insertbackground="#4de1ff"
+        )
+        self.text_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 8))
+        self.text_entry.bind("<Return>", self.submit_text_command)
+
+        self.send_text_btn = tk.Button(
+            text_row,
+            text="SEND",
+            command=self.submit_text_command,
+            bg="#444",
+            fg="#081018",
+            font=("Segoe UI", 9, "bold"),
+            padx=14,
+            pady=6,
+            relief=tk.FLAT,
+            cursor="hand2",
+            activebackground="#e39a45",
+            activeforeground="#081018",
+            state=tk.DISABLED
+        )
+        self.send_text_btn.pack(side=tk.RIGHT)
 
         # ===== HUD PANEL =====
         hud_title = tk.Label(
@@ -341,7 +420,7 @@ class JarvisUI:
             ).pack(side=tk.LEFT)
             bar = ttk.Progressbar(
                 row,
-                style="Jarvis.Horizontal.TProgressbar",
+                style="Zenith.Horizontal.TProgressbar",
                 orient=tk.HORIZONTAL,
                 mode="determinate",
                 maximum=100,
@@ -349,8 +428,8 @@ class JarvisUI:
                 length=160
             )
             bar.pack(side=tk.RIGHT, padx=(8, 0))
-            bar.configure(style="Jarvis.Horizontal.TProgressbar")
-            style.configure("Jarvis.Horizontal.TProgressbar", background=color)
+            bar.configure(style="Zenith.Horizontal.TProgressbar")
+            style.configure("Zenith.Horizontal.TProgressbar", background=color)
 
         info_text = f"Wake word: '{self.wake_word}'"
         info_label = tk.Label(
@@ -365,6 +444,8 @@ class JarvisUI:
         self._draw_hud()
         self._animate_hud()
         self._update_clock()
+
+        self.set_input_mode(self.input_mode.get(), silent=True)
 
     def _draw_hud(self):
         """Draw the static HUD elements."""
@@ -454,7 +535,7 @@ class JarvisUI:
         self.arc_angle = 0
 
     def _animate_hud(self):
-        """Animate HUD arcs for a live Jarvis feel."""
+        """Animate HUD arcs for a live Zenith feel."""
         self.arc_angle = (self.arc_angle + 4) % 360
         self.hud_canvas.itemconfigure(self.arc_one, start=self.arc_angle)
         self.hud_canvas.itemconfigure(self.arc_two, start=(180 - self.arc_angle) % 360)
@@ -524,9 +605,45 @@ class JarvisUI:
         if hasattr(self, "hud_text"):
             self.hud_canvas.itemconfigure(self.hud_text, text=status)
         self.root.update()
+
+    def _auto_start_voice_mode(self):
+        """Start voice mode and wake word detection on launch"""
+        self.set_input_mode("voice", silent=True)
+        if not self.wake_word_active:
+            self.start_wake_word_detection()
+
+    def set_input_mode(self, mode: str, silent: bool = False):
+        """Switch between voice and text input modes"""
+        if mode not in {"voice", "text"}:
+            return
+
+        self.input_mode.set(mode)
+
+        if mode == "text":
+            if self.wake_word_active:
+                self.stop_wake_word_detection()
+            self.listen_btn.config(state=tk.DISABLED, bg="#444")
+            self.wake_word_btn.config(state=tk.DISABLED, bg="#444")
+            self.text_entry.config(state=tk.NORMAL)
+            self.send_text_btn.config(state=tk.NORMAL, bg="#ffb86c")
+            if not silent:
+                self.update_status("TEXT MODE", "#ffb86c")
+                self.add_log("📝 Switched to text input mode")
+            self.text_entry.focus()
+        else:
+            self.listen_btn.config(state=tk.NORMAL, bg="#7aa2f7")
+            self.wake_word_btn.config(state=tk.NORMAL, bg="#4de1ff")
+            self.text_entry.config(state=tk.DISABLED)
+            self.send_text_btn.config(state=tk.DISABLED, bg="#444")
+            if not silent:
+                self.update_status("READY", "#4de1ff")
+                self.add_log("🎤 Switched to voice mode")
     
     def toggle_wake_word_detection(self):
         """Toggle wake word detection on/off"""
+        if self.input_mode.get() != "voice":
+            self.add_log("⚠️ Wake word is disabled in text mode")
+            return
         if self.wake_word_active:
             self.stop_wake_word_detection()
         else:
@@ -535,13 +652,8 @@ class JarvisUI:
     def start_wake_word_detection(self):
         """Start listening for wake word"""
         if not PORCUPINE_AVAILABLE:
-            self.add_log("❌ Porcupine wake word detection not available")
-            self.add_log("Install with: pip install pvporcupine pyaudio")
-            messagebox.showwarning(
-                "Wake Word Detection",
-                "Porcupine not installed.\n\nInstall with:\npip install pvporcupine pyaudio"
-            )
-            return
+            self.use_porcupine_wake_word = False
+            self.add_log("⚠️ Porcupine not available. Using speech-recognition wake word detection")
         
         self.wake_word_active = True
         self.wake_word_btn.config(
@@ -551,25 +663,40 @@ class JarvisUI:
         )
         self.update_status("LISTENING", "#ffb86c")
         self.add_log(f"🎤 Listening for wake word '{self.wake_word}'...")
-        
-        # Start wake word detection in a separate thread
-        self.wake_word_thread = threading.Thread(target=self._wake_word_loop, daemon=True)
-        self.wake_word_thread.start()
+        self.wake_word_paused = False
+
+        if self.use_porcupine_wake_word and PORCUPINE_AVAILABLE:
+            # Start wake word detection in a separate thread
+            self.wake_word_thread = threading.Thread(target=self._wake_word_loop, daemon=True)
+            self.wake_word_thread.start()
+        else:
+            self.root.after(200, self._simple_wake_word_detection)
     
     def _wake_word_loop(self):
         """Loop for wake word detection"""
         try:
             if not self.porcupine_key:
                 self.add_log("❌ Picovoice access key not set")
-                self.add_log("Add picovoice_access_key to jarvis_config.json")
+                self.add_log("Add picovoice_access_key to zenith_config.json")
+                self.use_porcupine_wake_word = False
                 self._simple_wake_word_detection()
                 return
 
             # Initialize Porcupine for wake word detection
-            self.porcupine = pvporcupine.create(
-                access_key=self.porcupine_key,
-                keywords=[self.wake_word],
-            )
+            try:
+                self.porcupine = pvporcupine.create(
+                    access_key=self.porcupine_key,
+                    keywords=[self.wake_word],
+                )
+            except Exception as e:
+                error_text = str(e)
+                self.add_log(f"❌ Wake word '{self.wake_word}' not available in Porcupine: {error_text}")
+                if "no longer supported" in error_text.lower():
+                    self.add_log("Porcupine SDK is outdated. Upgrade pvporcupine to continue using wake word detection.")
+                self.add_log("Falling back to speech-recognition wake word detection")
+                self.use_porcupine_wake_word = False
+                self._simple_wake_word_detection()
+                return
             self.pa = pyaudio.PyAudio()
             self.audio_stream = self.pa.open(
                 rate=self.porcupine.sample_rate,
@@ -581,6 +708,9 @@ class JarvisUI:
 
             import struct
             while self.wake_word_active:
+                if self.wake_word_paused:
+                    time.sleep(0.1)
+                    continue
                 pcm = self.audio_stream.read(
                     self.porcupine.frame_length,
                     exception_on_overflow=False,
@@ -588,10 +718,8 @@ class JarvisUI:
                 pcm = struct.unpack_from("h" * self.porcupine.frame_length, pcm)
                 result = self.porcupine.process(pcm)
                 if result >= 0:
-                    self.add_log(f"✅ Wake word detected: '{self.wake_word}'")
-                    self.update_status("WAKE DETECTED", "#7CFFB2")
-                    self.root.after(100, self.start_listening)
-                    self.root.after(800, self._continue_wake_word_detection)
+                    self._on_wake_word_detected(f"✅ Wake word detected: '{self.wake_word}'")
+                    return
             
         except Exception as e:
             self.add_log(f"❌ Wake word detection error: {e}")
@@ -616,18 +744,37 @@ class JarvisUI:
     
     def _simple_wake_word_detection(self):
         """Simple wake word detection using speech recognition"""
-        if not self.listening and self.wake_word_active:
+        if not self.listening and self.wake_word_active and not self.wake_word_paused:
             try:
                 command = self.jarvis.listen()
                 if command and self.wake_word in command:
-                    self.add_log(f"✅ Wake word detected in: '{command}'")
-                    self.update_status("🎤 Wake word detected! Ready for command...", "#4caf50")
-                    self.root.after(500, lambda: self._continue_wake_word_detection())
+                    self._on_wake_word_detected(f"✅ Wake word detected in: '{command}'")
                 elif self.wake_word_active:
                     self.root.after(500, lambda: self._simple_wake_word_detection())
             except Exception as e:
                 if self.wake_word_active:
                     self.root.after(1000, lambda: self._simple_wake_word_detection())
+
+    def _on_wake_word_detected(self, log_message: str):
+        """Handle wake word detection and start listening for a command"""
+        if self.wake_word_paused:
+            return
+        self.wake_word_paused = True
+        self.add_log(log_message)
+        self.update_status("WAKE DETECTED", "#7CFFB2")
+        self.root.after(100, self.start_listening)
+
+    def _resume_wake_word_detection(self):
+        """Resume wake word detection after handling a command"""
+        if not self.wake_word_active:
+            return
+        self.wake_word_paused = False
+        if self.use_porcupine_wake_word and PORCUPINE_AVAILABLE and self.porcupine_key:
+            if not self.wake_word_thread or not self.wake_word_thread.is_alive():
+                self.wake_word_thread = threading.Thread(target=self._wake_word_loop, daemon=True)
+                self.wake_word_thread.start()
+            return
+        self.root.after(400, self._simple_wake_word_detection)
     
     def _continue_wake_word_detection(self):
         """Continue wake word detection after detection"""
@@ -648,6 +795,9 @@ class JarvisUI:
     
     def start_listening(self):
         """Start listening for voice command"""
+        if self.input_mode.get() != "voice":
+            self.add_log("⚠️ Voice listening is disabled in text mode")
+            return
         if self.listening:
             return
         
@@ -668,56 +818,27 @@ class JarvisUI:
             self.add_log(f"❌ Listen error: {e}")
         finally:
             self.listening = False
-            self.listen_btn.config(state=tk.NORMAL, bg="#7aa2f7")
-            self.update_status("READY", "#4de1ff")
+            if self.input_mode.get() == "voice":
+                self.listen_btn.config(state=tk.NORMAL, bg="#7aa2f7")
+                self.update_status("READY", "#4de1ff")
+            else:
+                self.listen_btn.config(state=tk.DISABLED, bg="#444")
+            if self.wake_word_active:
+                self.root.after(500, self._resume_wake_word_detection)
     
+    def submit_text_command(self, event=None):
+        """Submit text command from the inline input"""
+        command = self.text_entry.get().strip().lower()
+        if not command:
+            return
+        self.text_entry.delete(0, tk.END)
+        self.add_log(f"📝 Text command: {command}")
+        self.process_command(command)
+
     def get_text_command(self):
-        """Get command via text input"""
-        # Create a simple input dialog
-        input_window = tk.Toplevel(self.root)
-        input_window.title("Enter Command")
-        input_window.geometry("400x150")
-        input_window.configure(bg="#1a1f3a")
-        
-        label = tk.Label(
-            input_window,
-            text="Enter your command:",
-            font=("Arial", 11),
-            bg="#1a1f3a",
-            fg="#00d4ff"
-        )
-        label.pack(pady=10)
-        
-        entry = tk.Entry(
-            input_window,
-            font=("Arial", 11),
-            bg="#0f1428",
-            fg="#00ff00",
-            insertbackground="#00d4ff"
-        )
-        entry.pack(padx=10, pady=5, fill=tk.X)
-        entry.focus()
-        
-        def submit():
-            command = entry.get().lower()
-            input_window.destroy()
-            if command:
-                self.add_log(f"📝 Text command: {command}")
-                self.process_command(command)
-        
-        submit_btn = tk.Button(
-            input_window,
-            text="Submit",
-            command=submit,
-            bg="#00d4ff",
-            fg="#000",
-            font=("Arial", 10, "bold"),
-            padx=20,
-            pady=8
-        )
-        submit_btn.pack(pady=10)
-        
-        entry.bind("<Return>", lambda e: submit())
+        """Focus text input and switch to text mode"""
+        self.set_input_mode("text")
+        self.text_entry.focus()
     
     def process_command(self, command):
         """Process the command"""
@@ -729,8 +850,8 @@ class JarvisUI:
         self.update_status("PROCESSING", "#7aa2f7")
         
         try:
-            # Execute the command through Jarvis
-            response = self.execute_jarvis_command(command)
+            # Execute the command through Zenith
+            response = self.execute_zenith_command(command)
             if response:
                 self.add_response(response)
             
@@ -744,8 +865,8 @@ class JarvisUI:
         
         self.update_status("READY", "#4de1ff")
     
-    def execute_jarvis_command(self, command):
-        """Execute command through Jarvis"""
+    def execute_zenith_command(self, command):
+        """Execute command through Zenith"""
         if self.use_agent and self.agent:
             result = self.agent.process_request(command)
             if result.get("success"):
@@ -756,7 +877,7 @@ class JarvisUI:
         
         # Greetings
         if any(word in command for word in ["hello", "hi", "hey", "greetings"]):
-            response = "Hello! I'm Jarvis, your personal assistant. How can I help you?"
+            response = "Hello! I'm Zenith, your personal assistant. How can I help you?"
             self.jarvis.speak(response)
         
         # Time
@@ -877,14 +998,14 @@ class JarvisUI:
     def exit_app(self):
         """Exit the application"""
         self.stop_wake_word_detection()
-        if messagebox.askokcancel("Exit", "Are you sure you want to exit JARVIS?"):
+        if messagebox.askokcancel("Exit", "Are you sure you want to exit ZENITH?"):
             self.root.destroy()
 
 
 def main():
     """Main entry point"""
     root = tk.Tk()
-    app = JarvisUI(root)
+    app = ZenithUI(root)
     root.mainloop()
 
 

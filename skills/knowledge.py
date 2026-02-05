@@ -38,7 +38,32 @@ class KnowledgeSkill(BaseSkill):
     
     def execute(self, command: str, *args, **kwargs) -> Optional[str]:
         """Execute knowledge search"""
+        greeting_response = self._handle_greeting(command)
+        if greeting_response:
+            return greeting_response
         return self.search_knowledge(command)
+
+    def _handle_greeting(self, command: str) -> Optional[str]:
+        """Return a friendly response for greetings and small talk."""
+        cmd = command.strip().lower()
+        greetings = [
+            "hi", "hii", "hello", "hey", "good morning", "good afternoon",
+            "good evening", "good night", "thanks", "thank you", "ok", "okay",
+            "bye", "goodbye", "how are you", "what's up", "whats up", "sup"
+        ]
+
+        if any(greet == cmd or greet in cmd for greet in greetings):
+            if any(word in cmd for word in ["bye", "goodbye", "good night"]):
+                response = "Goodbye!"
+            elif any(word in cmd for word in ["thanks", "thank you"]):
+                response = "You're welcome!"
+            elif "how are you" in cmd:
+                response = "I'm doing well. How can I help you?"
+            else:
+                response = "Hi! How can I help you?"
+            self.speak(response)
+            return response
+        return None
     
     def search_knowledge(self, query: str) -> str:
         """Search for knowledge-based answers using Wikipedia"""
@@ -57,7 +82,7 @@ class KnowledgeSkill(BaseSkill):
 
         query = _normalize_query(query)
         headers = {
-            "User-Agent": "Jarvis/1.0 (https://example.com; contact: local)"
+            "User-Agent": "Zenith/1.0 (https://example.com; contact: local)"
         }
         if not REQUESTS_AVAILABLE:
             return self.fallback_search(query)

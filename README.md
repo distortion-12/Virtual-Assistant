@@ -1,4 +1,4 @@
-# JARVIS - Intelligent Agent-Based AI Assistant
+# ZENITH - Intelligent Agent-Based AI Assistant
 
 > A production-ready, modular Python AI assistant framework with skill-based architecture, task planning, and agent-based orchestration
 
@@ -8,7 +8,7 @@
 
 ## 🎯 Overview
 
-JARVIS is an intelligent AI assistant system that understands natural language requests, breaks them into executable tasks, and coordinates modular skills to provide responses. It's designed with enterprise-grade architecture while remaining simple to extend and customize.
+ZENITH is an intelligent AI assistant system that understands natural language requests, breaks them into executable tasks, and coordinates modular skills to provide responses. It's designed with enterprise-grade architecture while remaining simple to extend and customize.
 
 ### Key Capabilities
 
@@ -32,30 +32,19 @@ cd AI
 pip install -r requirements.txt
 ```
 
-### First Run
+### First Run (GUI is default)
 
 ```bash
-# Launch JARVIS
+# Launch ZENITH GUI
 python executor.py
-
-# Select mode: 2 (Text Mode is easiest to start)
-# Try a command: "What's the time?"
 ```
 
-### First Voice Command
+### First Voice Command (Wake Word)
 
 ```bash
 python executor.py
-# Select mode: 1 (Voice Mode)
-# Say: "What is Python?"
-```
-
-### First GUI Session
-
-```bash
-python jarvis_ui.py
-# Click "LISTEN" or "TEXT INPUT"
-# Interact with the interface
+# Say the wake word, then your command
+# Example: "jarvis" → "what is python"
 ```
 
 ## 📋 What You Can Do
@@ -128,7 +117,7 @@ This project includes core documentation:
                  │
                  ↓
 ┌─────────────────────────────────────────────────┐
-│         JarvisAgent (Orchestrator)              │
+│         ZenithAgent (Orchestrator)             │
 │  • Plans requests into tasks                    │
 │  • Manages execution flow                       │
 │  • Compiles results                             │
@@ -145,7 +134,7 @@ This project includes core documentation:
                         ┌──────┴──────┐
                         ↓             ↓
                    ┌─────────────────────────┐
-                   │    7 Modular Skills     │
+                   │    9 Modular Skills     │
                    ├─────────────────────────┤
                    │ • Time/Date             │
                    │ • Applications          │
@@ -154,22 +143,24 @@ This project includes core documentation:
                    │ • Files                 │
                    │ • Weather               │
                    │ • Knowledge Q&A         │
+                   │ • Input                 │
+                   │ • Messages              │
                    └─────────────────────────┘
 ```
 
 ## 📁 Project Structure
 
 ```
-jarvis/
+zenith/
 ├── README.md                    # Main documentation (this file)
 ├── USER_GUIDE.md               # Full usage guide
 ├── requirements.txt             # Python dependencies
-├── jarvis_config.json          # Local configuration (ignored)
-├── jarvis_config.example.json  # Safe example config
+├── zenith_config.json          # Local configuration (ignored)
+├── zenith_config.example.json  # Safe example config
 │
 ├── executor.py                  # ⭐ Main entry point
-├── jarvis.py                    # Core library (I/O, utilities)
-├── jarvis_ui.py                 # GUI interface (Tkinter)
+├── zenith.py                    # Core library (I/O, utilities)
+├── zenith_ui.py                 # GUI interface (Tkinter)
 │
 ├── skills/                      # 🛠️ Modular Skills (7 skills)
 │   ├── __init__.py
@@ -181,39 +172,28 @@ jarvis/
 │   ├── files.py                 # 📁 File operations
 │   ├── weather.py               # 🌦️ Weather info
 │   └── knowledge.py             # 🧠 Q&A knowledge
+│   ├── input.py                 # ⌨️ Input prompts
+│   └── messages.py              # 💬 WhatsApp messaging
 │
 ├── tasks/                       # 📋 Task Management System
 │   ├── __init__.py
+│   ├── hosted_intent.py          # Hosted intent routing
 │   ├── task_manager.py          # Task & queue management
 │   ├── task_executor.py         # Task execution
 │   └── task_planner.py          # Request parsing
 │
 ├── agents/                      # 🧠 Agent System
 │   ├── __init__.py
-│   └── jarvis_agent.py          # Main agent orchestrator
+│   └── zenith_agent.py          # Main agent orchestrator
 └── client/                      # 🌐 Optional web UI (React + Vite)
 ```
 
-## 🎓 Learning Paths
+## 🎓 Getting Started Tips
 
-### Beginner (15 minutes)
-1. Read this README.md
-2. Run: `python executor.py` (mode 2 - Text)
-3. Try 5 example commands above
-4. Read [QUICKSTART.md](QUICKSTART.md)
-
-### Intermediate (1 hour)
-1. Read [ARCHITECTURE.md](ARCHITECTURE.md) - System Design section
-2. Study `executor.py` code
-3. Explore one skill file (`skills/time_date.py`)
-4. Try voice mode: `python executor.py` (mode 1)
-5. Try GUI: `python jarvis_ui.py`
-
-### Advanced (2 hours)
-1. Read [MODULAR_ARCHITECTURE.md](MODULAR_ARCHITECTURE.md)
-2. Create a custom skill (follow 3-step guide)
-3. Register skill and test
-4. Read [ARCHITECTURE.md](ARCHITECTURE.md) - Extension section
+1. Start the GUI: `python executor.py`
+2. Say the wake word and a simple command (time/date)
+3. Try a multi-step command (open an app + search)
+4. Review [USER_GUIDE.md](USER_GUIDE.md) for detailed usage
 
 ## 🛠️ Creating Your First Skill
 
@@ -246,31 +226,31 @@ class GreetingSkill(BaseSkill):
 ```python
 from skills.greeting import GreetingSkill
 
-# In JarvisExecutor._register_skills():
+# In ZenithExecutor._register_skills():
 executor.register_skill(GreetingSkill(self.jarvis))
 ```
 
 **Step 3: Use it**
 ```
-You: "Hello JARVIS"
-JARVIS: "Good afternoon!"
+You: "Hello ZENITH"
+ZENITH: "Good afternoon!"
 ```
 
-For complete guide, see [MODULAR_ARCHITECTURE.md](MODULAR_ARCHITECTURE.md)
+For a complete walkthrough, follow the steps above and inspect existing skills.
 
 ## ⚙️ Configuration
 
 Copy the example config and edit your local file:
 
 ```bash
-copy jarvis_config.example.json jarvis_config.json
+copy zenith_config.example.json zenith_config.json
 ```
 
-Then edit `jarvis_config.json`:
+Then edit `zenith_config.json`:
 
 ```json
 {
-    "wake_word": "jarvis",
+    "wake_word": "zenith",
     "voice_rate": 150,
     "voice_volume": 0.9,
     "weather_api_key": "",
@@ -289,7 +269,7 @@ Then edit `jarvis_config.json`:
 
 | Option | Type | Default | Purpose |
 |--------|------|---------|---------|
-| wake_word | string | "jarvis" | Activation word for voice mode |
+| wake_word | string | "zenith" | Activation word for voice mode |
 | voice_rate | int | 150 | Speech rate (words per minute) |
 | voice_volume | float | 0.9 | Speaker volume (0.0-1.0) |
 | weather_api_key | string | "" | OpenWeatherMap API key |
@@ -309,61 +289,38 @@ Then edit `jarvis_config.json`:
 All dependencies are listed in `requirements.txt`:
 
 ```
-pyttsx3>=2.90          # Text-to-speech
-SpeechRecognition>=3.10.0  # Speech recognition
-requests>=2.28.0       # HTTP requests
-psutil>=5.9.0          # System info
-Pillow>=9.0.0          # Image processing (for GUI)
+pyttsx3==2.90          # Text-to-speech
+SpeechRecognition==3.10.0  # Speech recognition
+pyaudio==0.2.14        # Microphone input
+pvporcupine>=3.0.0     # Wake word detection (optional)
+requests==2.31.0       # HTTP requests
+psutil==5.9.5          # System info
+pyautogui==0.9.54      # UI automation (optional)
+Pillow==10.3.0         # Image processing (optional)
 ```
 
-Optional dependencies:
-- `PvPorcupine` - For advanced wake word detection
-- `python-dotenv` - For environment variables
+Optional dependencies are already listed in `requirements.txt`.
 
 Install all:
 ```bash
 pip install -r requirements.txt
 ```
 
-## 🎮 Usage Modes
+## 🎮 Usage
 
-### Mode 1: Voice Mode (Speech Recognition)
 ```bash
 python executor.py
-# Select: 1
-# Speak your commands naturally
-```
-
-**Requires:** Microphone and audio input
-**Best for:** Hands-free operation
-
-### Mode 2: Text Mode (Keyboard Input)
-```bash
-python executor.py
-# Select: 2
-# Type your commands
-```
-
-**Requires:** Keyboard only
-**Best for:** Development and testing
-
-### Mode 3: GUI Mode (Visual Interface)
-```bash
-python jarvis_ui.py
 ```
 
 **Features:**
-- Sci‑fi HUD theme with animated core panel
-- Wake word detection
-- Manual listen and text input
+- Wake word detection (default: from `zenith_config.json`)
+- Voice control + in‑UI text mode switch
 - Activity log with timestamps
 - Real-time status updates
 
-**Best for:** User-friendly interaction
-
 ## ✅ Quick Check
 
-Run the app and verify voice/text works:
+Run the app and verify wake word + voice works:
 
 ```bash
 python executor.py
@@ -450,9 +407,6 @@ python executor.py
 
 ### Module import errors
 ```bash
-# Verify system
-python verify_system.py
-
 # Reinstall dependencies
 pip install -r requirements.txt --force-reinstall
 ```
@@ -470,15 +424,6 @@ pip install -r requirements.txt --force-reinstall
 # macOS: Install via Homebrew
 # Linux: sudo apt-get install python3-tk
 ```
-
-## 📊 System Statistics
-
-- **Total Code Files**: 21
-- **Lines of Code**: 2000+
-- **Documentation**: 13 files, 5000+ lines
-- **Skills**: 7 built-in
-- **Interfaces**: 3 (Text, Voice, GUI)
-- **Architecture Patterns**: 5 (MVC, Strategy, Factory, Agent, Task Queue)
 
 ## 🎯 Use Cases
 
@@ -536,11 +481,11 @@ Use conjunctions for multi-step commands:
 ### Voice Mode Tips
 - Speak clearly and naturally
 - Use complete sentences for complex requests
-- Wait for JARVIS to finish speaking before next command
+- Wait for ZENITH to finish speaking before next command
 - Check microphone permissions in system settings
 
 ### Custom Configuration
-Edit `jarvis_config.json` to customize behavior:
+Edit `zenith_config.json` to customize behavior:
 - Faster/slower speech
 - Different wake word
 - Language preferences
@@ -555,14 +500,14 @@ Edit `jarvis_config.json` to customize behavior:
 ## 🎉 Ready to Start?
 
 ```bash
-# Launch JARVIS
+# Launch ZENITH
 python executor.py
 
 # Select mode 2 for Text Mode (easiest start)
 # Try: "What's the time?"
 ```
 
-**Enjoy using JARVIS!** 🚀
+**Enjoy using ZENITH!** 🚀
 
 ---
 

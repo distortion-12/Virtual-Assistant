@@ -12,7 +12,7 @@ class TaskExecutor:
     """Executes tasks using available skills"""
     
     def __init__(self, jarvis_instance):
-        """Initialize executor with Jarvis instance"""
+        """Initialize executor with Zenith instance"""
         self.jarvis = jarvis_instance
         self.skills: List = []  # List of skill instances
         self.execution_history: List[Task] = []

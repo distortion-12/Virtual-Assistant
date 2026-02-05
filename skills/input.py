@@ -215,7 +215,7 @@ class InputSkill(BaseSkill):
             )
 
         headers = {
-            "User-Agent": "Jarvis/1.0 (https://example.com; contact: local)",
+            "User-Agent": "Zenith/1.0 (https://example.com; contact: local)",
         }
 
         # Try Google Gemini API if configured

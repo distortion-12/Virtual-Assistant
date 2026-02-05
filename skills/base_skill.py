@@ -10,7 +10,7 @@ class BaseSkill(ABC):
     """Base class for all skills"""
     
     def __init__(self, jarvis_instance):
-        """Initialize skill with Jarvis instance reference"""
+        """Initialize skill with Zenith instance reference"""
         self.jarvis = jarvis_instance
         self.name = self.__class__.__name__
     
@@ -25,7 +25,7 @@ class BaseSkill(ABC):
         pass
     
     def speak(self, text: str):
-        """Use Jarvis to speak"""
+        """Use Zenith to speak"""
         self.jarvis.speak(text)
     
     def log(self, message: str):

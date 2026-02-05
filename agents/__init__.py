@@ -1,11 +1,11 @@
 """
 Agents Module
-Agent-based request handling for Jarvis
+Agent-based request handling for Zenith
 """
 
-from .jarvis_agent import JarvisAgent, AgentState
+from .zenith_agent import ZenithAgent, AgentState
 
 __all__ = [
-    'JarvisAgent',
+    'ZenithAgent',
     'AgentState',
 ]

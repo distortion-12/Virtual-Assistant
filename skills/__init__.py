@@ -1,6 +1,6 @@
 """
-JARVIS Skills Module
-Contains all skills/abilities that JARVIS can perform
+ZENITH Skills Module
+Contains all skills/abilities that ZENITH can perform
 """
 
 from .time_date import TimeAndDateSkill

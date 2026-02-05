@@ -162,7 +162,7 @@ zenith/
 ├── zenith.py                    # Core library (I/O, utilities)
 ├── zenith_ui.py                 # GUI interface (Tkinter)
 │
-├── skills/                      # 🛠️ Modular Skills (7 skills)
+├── skills/                      # 🛠️ Modular Skills (9 skills)
 │   ├── __init__.py
 │   ├── base_skill.py            # Abstract base class
 │   ├── time_date.py             # ⏰ Time & Date
@@ -171,7 +171,7 @@ zenith/
 │   ├── web.py                   # 🌐 Web search
 │   ├── files.py                 # 📁 File operations
 │   ├── weather.py               # 🌦️ Weather info
-│   └── knowledge.py             # 🧠 Q&A knowledge
+│   ├── knowledge.py             # 🧠 Q&A knowledge
 │   ├── input.py                 # ⌨️ Input prompts
 │   └── messages.py              # 💬 WhatsApp messaging
 │
@@ -185,7 +185,7 @@ zenith/
 ├── agents/                      # 🧠 Agent System
 │   ├── __init__.py
 │   └── zenith_agent.py          # Main agent orchestrator
-└── client/                      # 🌐 Optional web UI (React + Vite)
+
 ```
 
 ## 🎓 Getting Started Tips

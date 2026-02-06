@@ -326,6 +326,26 @@ Run the app and verify wake word + voice works:
 python executor.py
 ```
 
+## 📦 Build Windows EXE
+
+Install PyInstaller once:
+
+```bash
+pip install pyinstaller
+```
+
+Clean rebuild using the spec (recommended):
+
+```bash
+powershell -ExecutionPolicy Bypass -File .\build_exe.ps1
+```
+
+Output is created in `dist\Zenith\Zenith.exe`.
+
+Notes:
+- Porcupine wake word requires `PICOVOICE_ACCESS_KEY` at runtime.
+- If you change dependencies, rebuild the EXE.
+
 ## 🧠 System Features
 
 ### Intelligent Planning

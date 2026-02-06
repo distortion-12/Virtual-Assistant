@@ -46,9 +46,6 @@ Thumbs.db
 # Local data/cache
 PyWhatKit_DB.txt
 
-#gitignore
-.gitignore
-
 # Dev/launcher scripts (optional)
 run_dev.py
 run_jarvis_ui.py
@@ -75,3 +72,8 @@ client/.vite/
 *.md
 !README.md
 !USER_GUIDE.md
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
